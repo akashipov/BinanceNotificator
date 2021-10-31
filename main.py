@@ -9,28 +9,30 @@ from config import load_config, write_config
 class Notificator:
     def __init__(self):
         self.client = None
-        self.counter = {"BTCUSDT": "<"}
+        self.counter = {}
         self.config = load_config()
         self.bot = telebot.TeleBot(self.config["token"])
 
-    def process_condition(self, condition, sub_message, ticker):
+    def process_condition(self, condition, sub_message, ticker, price):
         current_symbol = ticker["symbol"]
         if condition:
             subscribed_tickers = self.config["tickers"]
             self.bot.send_message(
                 self.config["chat_id"],
-                text=self.text(ticker, sub_message),
+                text=self.text(ticker, price, sub_message),
             )
-            self.counter.pop(current_symbol)
-            subscribed_tickers.pop(current_symbol)
+            self.counter.pop((current_symbol, price))
+            subscribed_tickers[current_symbol].remove(price)
+            if len(subscribed_tickers[current_symbol]) == 0:
+                subscribed_tickers.pop(current_symbol)
             write_config(self.config)
 
-    def text(self, ticker, x):
-        subscribed_tickers = self.config["tickers"]
+    @staticmethod
+    def text(ticker, price, x):
         current_symbol = ticker["symbol"]
         return (
             f"*****{current_symbol}*****\n{current_symbol} {x}"
-            f" {subscribed_tickers[current_symbol]}.\n\n"
+            f" {price}.\n\n"
             f'Текущая цена {float(ticker["price"])}!'
             f"\n**********"
         )
@@ -47,31 +49,32 @@ class Notificator:
                 for ticker in tickers:
                     current_symbol = ticker["symbol"]
                     if current_symbol in subscribed_tickers:
-                        if current_symbol not in self.counter:
-                            self.counter[current_symbol] = ""
-                        if len(self.counter[current_symbol]) == 0:
-                            if (
-                                float(ticker["price"])
-                                > subscribed_tickers[current_symbol]
-                            ):
-                                self.counter[current_symbol] = ">"
-                            else:
-                                self.counter[current_symbol] = "<"
-                        if len(self.counter[current_symbol]) == 1:
-                            self.process_condition(
-                                float(ticker["price"])
-                                > subscribed_tickers[current_symbol]
-                                and self.counter[current_symbol] == "<",
-                                "превысила отметку",
-                                ticker,
-                            )
-                            self.process_condition(
-                                float(ticker["price"])
-                                < subscribed_tickers[current_symbol]
-                                and self.counter[current_symbol] == ">",
-                                "опустилась ниже отметки",
-                                ticker,
-                            )
+                        prices = subscribed_tickers[current_symbol]
+                        for price in prices:
+                            if (current_symbol, price) not in self.counter:
+                                self.counter[(current_symbol, price)] = ""
+                            if len(self.counter[(current_symbol, price)]) == 0:
+                                if float(ticker["price"]) > price:
+                                    self.counter[(current_symbol, price)] = ">"
+                                else:
+                                    self.counter[(current_symbol, price)] = "<"
+                            if len(self.counter[(current_symbol, price)]) == 1:
+                                self.process_condition(
+                                    float(ticker["price"]) > price
+                                    and self.counter[(current_symbol, price)]
+                                    == "<",
+                                    "превысила отметку",
+                                    ticker,
+                                    price,
+                                )
+                                self.process_condition(
+                                    float(ticker["price"]) < price
+                                    and self.counter[(current_symbol, price)]
+                                    == ">",
+                                    "опустилась ниже отметки",
+                                    ticker,
+                                    price,
+                                )
 
                 await asyncio.sleep(1)
             except BaseException as ex:

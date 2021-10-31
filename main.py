@@ -107,8 +107,10 @@ class Notificator:
                                     price,
                                 )
                 await asyncio.sleep(1)
-            except BaseException as ex:
+            except Exception as ex:
                 traceback.print_exc()
+                break
+            except BaseException as ex:
                 break
         await self.client.close_connection()
 
@@ -119,4 +121,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        print("Запущенно...")
+        main()
+    except BaseException as ex:
+        print("\nПриостановленно!!!")

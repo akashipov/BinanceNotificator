@@ -8,7 +8,19 @@ def load_config():
         os.path.join(pathlib.Path(__file__).parent.resolve(), "config.json"),
         "r",
     ) as f:
-        config = json.load(f)
+        lines = f.read().split("\n")
+        with open(
+                os.path.join(pathlib.Path(__file__).parent.resolve(), "config_without_comments.json"),
+                "w",
+        ) as g:
+            for line in lines:
+                print_line = line[:line.find('#')] if line.find('#') != -1 else line
+                g.write(print_line + '\n')
+        with open(
+                os.path.join(pathlib.Path(__file__).parent.resolve(), "config_without_comments.json"),
+                "r",
+        ) as g:
+            config = json.load(g)
     return config
 
 

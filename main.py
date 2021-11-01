@@ -124,5 +124,7 @@ if __name__ == "__main__":
     try:
         print("Запущенно...")
         main()
+    except Exception as ex:
+        traceback.print_exc()
     except BaseException as ex:
         print("\nПриостановленно!!!")

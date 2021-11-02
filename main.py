@@ -1,11 +1,11 @@
 import asyncio
+import time
+import traceback
 
 import telebot
 from binance import AsyncClient
 
 from config import load_config, write_config
-import time
-import traceback
 
 
 class Notificator:
@@ -14,7 +14,7 @@ class Notificator:
         self.counter = {}
         self.config = load_config()
         self.bot = telebot.TeleBot(self.config["token"])
-        self.interval = self.config['interval']
+        self.interval = self.config["interval"]
 
     def process_condition(
         self, condition, sup_condition, sub_message, ticker, price

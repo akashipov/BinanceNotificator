@@ -10,15 +10,23 @@ def load_config():
     ) as f:
         lines = f.read().split("\n")
         with open(
-                os.path.join(pathlib.Path(__file__).parent.resolve(), "config_without_comments.json"),
-                "w",
+            os.path.join(
+                pathlib.Path(__file__).parent.resolve(),
+                "config_without_comments.json",
+            ),
+            "w",
         ) as g:
             for line in lines:
-                print_line = line[:line.find('#')] if line.find('#') != -1 else line
-                g.write(print_line + '\n')
+                print_line = (
+                    line[: line.find("#")] if line.find("#") != -1 else line
+                )
+                g.write(print_line + "\n")
         with open(
-                os.path.join(pathlib.Path(__file__).parent.resolve(), "config_without_comments.json"),
-                "r",
+            os.path.join(
+                pathlib.Path(__file__).parent.resolve(),
+                "config_without_comments.json",
+            ),
+            "r",
         ) as g:
             config = json.load(g)
     return config

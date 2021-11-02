@@ -7,6 +7,24 @@ from binance import AsyncClient
 
 from config import load_config, write_config
 
+import decimal
+
+# create a new context for this task
+ctx = decimal.Context()
+
+# 100 digits should be enough for everyone :D
+ctx.prec = 30
+
+
+def float_to_str(f):
+    """
+    Convert the given float to a string,
+    without resorting to scientific notation
+    """
+    d1 = ctx.create_decimal(repr(f))
+    print(d1)
+    return format(d1, 'f')
+
 
 class Notificator:
     def __init__(self):
@@ -40,8 +58,8 @@ class Notificator:
         current_symbol = ticker["symbol"]
         return (
             f"*****{current_symbol}*****\n{current_symbol} {x}"
-            f" {price}.\n\n"
-            f'Текущая цена {float(ticker["price"])}!'
+            f" {float_to_str(price)}.\n\n"
+            f'Текущая цена {float_to_str(float(ticker["price"]))}!'
             f"\n**********"
         )
 

@@ -1,4 +1,5 @@
 import asyncio
+import decimal
 import time
 import traceback
 
@@ -6,8 +7,6 @@ import telebot
 from binance import AsyncClient
 
 from config import load_config, write_config
-
-import decimal
 
 # create a new context for this task
 ctx = decimal.Context()
@@ -22,8 +21,7 @@ def float_to_str(f):
     without resorting to scientific notation
     """
     d1 = ctx.create_decimal(repr(f))
-    print(d1)
-    return format(d1, 'f')
+    return format(d1, "f")
 
 
 class Notificator:
@@ -56,11 +54,13 @@ class Notificator:
     @staticmethod
     def text(ticker, price, x):
         current_symbol = ticker["symbol"]
+        head = f"*****{current_symbol}*****"
+        end = len(head) * "*"
         return (
-            f"*****{current_symbol}*****\n{current_symbol} {x}"
+            f"{head}\n{current_symbol} {x}"
             f" {float_to_str(price)}.\n\n"
-            f'Текущая цена {float_to_str(float(ticker["price"]))}!'
-            f"\n**********"
+            f"Текущая цена {float_to_str(float(ticker['price']))}!"
+            f"\n{end}"
         )
 
     async def run_notificator(self):
@@ -77,23 +77,12 @@ class Notificator:
                     if current_symbol in subscribed_tickers:
                         prices = subscribed_tickers[current_symbol]
                         for price in prices:
+                            sign, price = price[:1], float(price[1:])
                             if (current_symbol, price) not in self.counter:
                                 self.counter[(current_symbol, price)] = [
-                                    "",
+                                    "<" if sign == ">" else ">",
                                     None,
                                 ]
-                            if (
-                                len(self.counter[(current_symbol, price)][0])
-                                == 0
-                            ):
-                                if float(ticker["price"]) > price:
-                                    self.counter[(current_symbol, price)][
-                                        0
-                                    ] = ">"
-                                else:
-                                    self.counter[(current_symbol, price)][
-                                        0
-                                    ] = "<"
                             if (
                                 len(self.counter[(current_symbol, price)][0])
                                 == 1

@@ -1,0 +1,9 @@
+{
+    "chat_id": "431691679",
+    "print_all_tickers": false,
+    "tickers": {
+        "BTCUSDT": [">63250"]
+    },
+    "token": "2083034513:AAHg1npWs0ugdonQr4sPWj9KkUP8NDHPCRI",
+    "interval": 3600
+}

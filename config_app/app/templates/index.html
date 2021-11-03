@@ -1,4 +1,56 @@
-<label for="name">Name (4 to 8 characters):</label>
+<!doctype html>
+<html lang="en">
+<head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body>
+    <form style="padding: 20px; height: 1000px; width: 400px; display: block; background: #FAFAFA; margin: 0 auto;">
+        {% for item in keys %}
+            <div style="width: 400px;" id="div{{ forloop.counter }}">
+                <div style="display:inline-block; height: 20px; width: 400px;">
+                    <label style="float: left;" for="name">{{item}}:</label>
+                    <button style="float: right;" id="newElem" divId="div{{ forloop.counter }}" name={{item}} type="button">Add</button>
+                </div>
+                <input style="margin-left: 37.5%; display: inline-block; height: 20px; width: 100px;" type="text" id="name" name={{item}} maxlength="20" size="10">
+            </div>
+        {% endfor %}
+        <div id="newRow"></div>
+        <div style="padding-top: 5px;">
+            <button style="display: block; float: left; width: 140px; height: 35px;" id="addRow" type="button">Add new config attribute</button>
+            <input style="" type="submit" value="Send" formaction="/form">
+        </div>
+    </form>
+    <script type="text/javascript">
+            var count = 0;
+            // add row
+            $("button[id='newElem']").click(function () {
+                var html = '<input style="margin-left: 37.5%; display: inline-block; height: 20px; width: 100px;" type="text" id="name" name=' + $(this).attr('name') + ' maxlength="20" size="10">';
+                $('#' + $(this).attr('divId')).append(html);
+            });
 
-<input type="text" id="name" name="name" required
-       minlength="4" maxlength="8" size="10">
+            $("#addRow").click(function () {
+                var html = '';
+                var ident = "newname" + count;
+                html += '<div id="createdRow">';
+                html += '<input type="text" id=' + ident + ' name="name" maxlength="20" size="10">';
+                html += '<input type="text" id="value" maxlength="20" size="10">';
+                html += '<button id="removeRow" type="button">Remove</button>';
+                html += '</div>';
+                $('#newRow').append(html);
+
+                $("#" + ident).change( function() {
+                    var text = $(this).val();
+                    var html = '<a>' + text + '</a>';
+                    $('#newRow').append(html);
+                    $(this).next().attr("name", text);
+                });
+                count += 1;
+            });
+
+            // remove row
+            $(document).on('click', '#removeRow', function () {
+                $(this).closest('#createdRow').remove();
+            });
+    </script>
+</body>
+</html>

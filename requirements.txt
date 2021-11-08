@@ -1,2 +1,0 @@
-python_binance==1.0.15
-pyTelegramBotAPI==4.1.1

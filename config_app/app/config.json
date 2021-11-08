@@ -1,9 +1,26 @@
 {
     "chat_id": "431691679",
-    "print_all_tickers": false,
+    "print_all_tickers": "False",
     "tickers": {
-        "BTCUSDT": [">63250"]
+        "BTCUSDT": [
+            ">63250",
+            ">63251",
+            ">63251",
+            ">63251"
+        ],
+        "RPCUSDT": [
+            ">123",
+            ">456"
+        ],
+        "a": [
+            "ab",
+            "ac",
+            "adrom"
+        ],
+        "css": [
+            ""
+        ]
     },
     "token": "2083034513:AAHg1npWs0ugdonQr4sPWj9KkUP8NDHPCRI",
-    "interval": 3600
+    "interval": "3600"
 }

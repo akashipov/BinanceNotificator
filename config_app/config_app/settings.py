@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,12 +26,14 @@ SECRET_KEY = 'django-insecure-to(_8p7m8xmvp1(8d_5v5xotl$9vyq&ma!v1$brpoaexy!rz0^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.172']
+ALLOWED_HOSTS = ['192.168.1.172', '46.242.62.206', '127.0.0.1']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'django_better_admin_arrayfield',
+    'config_app',
     'app',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -76,8 +79,12 @@ WSGI_APPLICATION = 'config_app.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': '0.0.0.0',
+        'PORT': '5432',
     }
 }
 
@@ -117,6 +124,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'app', 'static'),
+]
 
 STATIC_URL = '/static/'
 

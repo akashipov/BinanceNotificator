@@ -2,55 +2,122 @@
 <html lang="en">
 <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    {% load static %}
+    <link href="{% static 'config-form.css' %}" rel="stylesheet">
 </head>
 <body>
-    <form style="padding: 20px; height: 1000px; width: 400px; display: block; background: #FAFAFA; margin: 0 auto;">
-        {% for item in keys %}
-            <div style="width: 400px;" id="div{{ forloop.counter }}">
-                <div style="display:inline-block; height: 20px; width: 400px;">
-                    <label style="float: left;" for="name">{{item}}:</label>
-                    <button style="float: right;" id="newElem" divId="div{{ forloop.counter }}" name={{item}} type="button">Add</button>
-                </div>
-                <input style="margin-left: 37.5%; display: inline-block; height: 20px; width: 100px;" type="text" id="name" name={{item}} maxlength="20" size="10">
-            </div>
+    <form style="width: 500px;">
+        <h1>Config form</h1>
+        {% for key, value in data.items %}
+        <block>
+            {% if key == 'tickers' %}
+                {% for key_ticker, values_ticker in value.items %}
+                <p>
+                    <label for={{key}}>
+                        <span>{% if forloop.counter == 1 %}{{key}}:{% endif %}</span>
+                    </label>
+                    <input class="first" type="text" id="{{key}}_key" name="{{key}}" value="{{key_ticker}}">{% for value_ticker in values_ticker %}<script type="text/javascript">$("form").css('width', Math.max($('form').width(), 400 + ({{forloop.counter}} + 1)*110));</script><input class="others" type="text" id={{key}} name="{{key_ticker}}" value="{{value_ticker}}">{% endfor %}<button style="margin: auto auto; margin-right: 5px;" id="addNewTicker" name={{key}} type="button">+</button><button style="margin: auto auto; margin-right: 5px;" id="delLastTicker" name=' + key + ' type="button" accesskey="d">-</button><button style="margin: auto auto; margin-right: 5px;" id="delLineTicker" name=' + key + ' type="button">Del line</button>
+                </p>
+                {% endfor %}
+            {% else %}
+                <p>
+                    <label for={{key}}>
+                        <span>{{key}}:</span>
+                    </label>
+                    <input type="text" id={{key}} name="{{key}}" value="{{value}}">
+                </p>
+            {% endif %}
+        </block>
+        {% if key == 'tickers' %}
+            <p>
+                <button style="margin: 0 80px;" id="addNew" name={{key}} type="button">Add</button>
+            </p>
+        {% endif %}
         {% endfor %}
-        <div id="newRow"></div>
-        <div style="padding-top: 5px;">
-            <button style="display: block; float: left; width: 140px; height: 35px;" id="addRow" type="button">Add new config attribute</button>
-            <input style="" type="submit" value="Send" formaction="/form">
-        </div>
+        <p>
+            <button type="submit" formaction="/form">Send</button>
+        </p>
     </form>
     <script type="text/javascript">
-            var count = 0;
-            // add row
-            $("button[id='newElem']").click(function () {
-                var html = '<input style="margin-left: 37.5%; display: inline-block; height: 20px; width: 100px;" type="text" id="name" name=' + $(this).attr('name') + ' maxlength="20" size="10">';
-                $('#' + $(this).attr('divId')).append(html);
+        $("input[name='tickers']").change(function() {
+            var value = $(this).val();
+            var item = $(this).nextUntil('button', 'input').attr('name', value);
+        });
+        var count = 0;
+        $("button[id='addNew']").click(function() {
+            var html = '';
+            var key = $(this).attr('name');
+            html += '<p>\n';
+            html += '\t<label for=' + key + '>\n';
+            html += '\t\t<span></span>\n';
+            html += '\t</label>\n';
+            var inputID = key + count;
+            html += '\t<input class="first" type="text" required id=' + inputID + ' name="' + key + '">';
+            html += '<input class="others" type="text" required id=' + key + ' name="' + key + '_value_values">';
+            var buttonID = "addNewTicker" + count;
+            var delButtonID = "delLastTicker" + count;
+            var delLineButtonID = "delLineTicker" + count;
+            html += '<button style="margin: auto auto; margin-right: 5px;" id=' + buttonID + ' name=' + key + ' type="button">+</button>';
+            html += '<button style="margin: auto auto; margin-right: 5px;" id=' + delButtonID + ' name=' + key + ' type="button">-</button>\n';
+            html += '<button style="margin: auto auto; margin-right: 5px;" id=' + delLineButtonID + ' name=' + key + ' type="button">Del line</button>';
+            html += '</p>';
+            var el = $(html);
+            $(this).parent().prev().append(el);
+            $("input[id=" + inputID + "]").change(function() {
+                var value = $(this).val();
+                var item = $(this).nextUntil('button', 'input').attr('name', value);
             });
-
-            $("#addRow").click(function () {
+            $("button[id=" + buttonID + "]").click(function() {
                 var html = '';
-                var ident = "newname" + count;
-                html += '<div id="createdRow">';
-                html += '<input type="text" id=' + ident + ' name="name" maxlength="20" size="10">';
-                html += '<input type="text" id="value" maxlength="20" size="10">';
-                html += '<button id="removeRow" type="button">Remove</button>';
-                html += '</div>';
-                $('#newRow').append(html);
-
-                $("#" + ident).change( function() {
-                    var text = $(this).val();
-                    var html = '<a>' + text + '</a>';
-                    $('#newRow').append(html);
-                    $(this).next().attr("name", text);
-                });
-                count += 1;
+                var key = $(this).prev().attr('name');
+                html += '<input class="others" type="text" required id=' + key + ' name="' + key + '">';
+                var el = $(html);
+                var form = $(this).closest('form');
+                var r_form = form.offset().left + form.width();
+                var r_target_el = $(this).next().next().offset().left + $(this).next().next().width();
+                if (r_target_el + 125 > r_form) {
+                    form.css('width', form.width() + 125);
+                }
+                el.insertBefore($(this));
             });
-
-            // remove row
-            $(document).on('click', '#removeRow', function () {
-                $(this).closest('#createdRow').remove();
+            $("button[id=" + delButtonID + "]").click(function() {
+                $(this).prev().prev().remove();
             });
+            $("button[id=" + delLineButtonID + "]").click(function() {
+                var p = $(this).closest('p');
+                if (p.children('label').children('span').text() == 'tickers:') {
+                    p.next().children('label').children('span').text('tickers:');
+                };
+                p.remove();
+            });
+            count += 1;
+        })
+
+        $("button[id='addNewTicker']").click(function() {
+            var html = '';
+            var key = $(this).prev().attr('name');
+            html += '<input class="others" type="text" id=' + key + ' name="' + key + '">';
+            var el = $(html);
+            var form = $(this).closest('form');
+            var r_form = form.offset().left + form.width();
+            var r_target_el = $(this).next().next().offset().left + $(this).next().next().width();
+            if (r_target_el + 125 > r_form) {
+                form.css('width', form.width() + 125);
+            };
+            el.insertBefore($(this));
+        });
+
+        $("button[id='delLastTicker']").click(function() {
+            $(this).prev().prev().remove();
+        });
+
+        $("button[id='delLineTicker']").click(function() {
+            var p = $(this).closest('p');
+            if (p.children('label').children('span').text() == 'tickers:') {
+                p.next().children('label').children('span').text('tickers:');
+            };
+            p.remove();
+        });
     </script>
 </body>
 </html>
